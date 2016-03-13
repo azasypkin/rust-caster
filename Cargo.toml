@@ -1,0 +1,7 @@
+[package]
+name = "chromecast-link-tool"
+version = "0.1.0"
+authors = ["Aleh Zasypkin <aleh.zasypkin@gmail.com>"]
+
+[dependencies]
+chromecast_link = { path = "../chromecast-link" }
