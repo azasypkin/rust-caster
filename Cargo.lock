@@ -2,7 +2,7 @@
 name = "chromecast-link-tool"
 version = "0.1.0"
 dependencies = [
- "chromecast_link 0.1.0",
+ "chromecast_link 0.1.0 (git+https://github.com/azasypkin/chromecast-link.git?rev=53535ea)",
 ]
 
 [[package]]
@@ -18,6 +18,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "chromecast_link"
 version = "0.1.0"
+source = "git+https://github.com/azasypkin/chromecast-link.git?rev=53535ea#53535ea2d93d5deefdc4060f16c67d0ad3b884b2"
 dependencies = [
  "openssl 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "protobuf 1.0.18 (registry+https://github.com/rust-lang/crates.io-index)",

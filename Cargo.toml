@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["Aleh Zasypkin <aleh.zasypkin@gmail.com>"]
 
 [dependencies]
-chromecast_link = { path = "../chromecast-link" }
+chromecast_link = { git = "https://github.com/azasypkin/chromecast-link.git", rev = "53535ea" }
