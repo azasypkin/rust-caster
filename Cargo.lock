@@ -2,29 +2,29 @@
 name = "chromecast-link-tool"
 version = "0.1.0"
 dependencies = [
- "chromecast_link 0.1.0 (git+https://github.com/azasypkin/chromecast-link.git?rev=53535ea)",
+ "chromecast_link 0.1.0 (git+https://github.com/azasypkin/chromecast-link.git?rev=b686eda)",
 ]
 
 [[package]]
 name = "aster"
-version = "0.13.1"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "bitflags"
-version = "0.3.3"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "chromecast_link"
 version = "0.1.0"
-source = "git+https://github.com/azasypkin/chromecast-link.git?rev=53535ea#53535ea2d93d5deefdc4060f16c67d0ad3b884b2"
+source = "git+https://github.com/azasypkin/chromecast-link.git?rev=b686eda#b686edac5f08175663a02dcc4fa23834f74601ac"
 dependencies = [
- "openssl 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "protobuf 1.0.18 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_macros 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_macros 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -65,20 +65,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "openssl"
-version = "0.7.6"
+version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "bitflags 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "bitflags 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "gcc 0.3.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.1.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl-sys 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl-sys-extras 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl-sys 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl-sys-extras 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "openssl-sys"
-version = "0.7.6"
+version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "gdi32-sys 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -90,12 +90,12 @@ dependencies = [
 
 [[package]]
 name = "openssl-sys-extras"
-version = "0.7.6"
+version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "gcc 0.3.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl-sys 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl-sys 0.7.9 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -118,23 +118,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "quasi"
-version = "0.7.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "quasi_codegen"
-version = "0.7.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "aster 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "aster 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "quasi_macros"
-version = "0.7.0"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "quasi_codegen 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quasi_codegen 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -152,12 +152,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serde_codegen"
-version = "0.7.0"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "aster 0.13.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "quasi 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "quasi_macros 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "aster 0.15.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quasi 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "quasi_macros 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -171,10 +171,10 @@ dependencies = [
 
 [[package]]
 name = "serde_macros"
-version = "0.7.0"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "serde_codegen 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_codegen 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
