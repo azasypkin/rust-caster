@@ -5,3 +5,8 @@ authors = ["Aleh Zasypkin <aleh.zasypkin@gmail.com>"]
 
 [dependencies]
 chromecast_link = { git = "https://github.com/azasypkin/chromecast-link.git", branch = "master" }
+docopt = "0.6.81"
+docopt_macros = "0.6.84"
+env_logger = "0.3.3"
+log = "0.3.6"
+rustc-serialize = "0.3.19"
