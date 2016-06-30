@@ -29,10 +29,16 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
+name = "byteorder"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
 name = "chromecast_link"
 version = "0.2.0"
-source = "git+https://github.com/azasypkin/chromecast-link.git#5a21b1188ad5b5c8e7ceb2eb83f16e448c503305"
+source = "git+https://github.com/azasypkin/chromecast-link.git#554ce69a0b830812bd6e42a8ad929e9d45de677d"
 dependencies = [
+ "byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "protobuf 1.0.22 (registry+https://github.com/rust-lang/crates.io-index)",

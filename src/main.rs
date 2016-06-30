@@ -8,15 +8,16 @@ extern crate log;
 extern crate rustc_serialize;
 extern crate chromecast_link;
 
+use std::str::FromStr;
+
 use chromecast_link::Chromecast;
-use chromecast_link::CHROMECAST_APPS;
-use chromecast_link::channels::receiver;
+use chromecast_link::channels::receiver::{ChromecastApp, Reply};
 use chromecast_link::channels::media::StreamType;
 
 const DEFAULT_DESTINATION_ID: &'static str = "receiver-0";
 
 docopt!(Args derive Debug, "
-Usage: chromecast-link-tool [-v] [-h] [-a <address>] [-p <port>] [--stream <url>] [--media-type <media type>] [--stream-type <stream type>]
+Usage: chromecast-link-tool [-v] [-h] [-a <address>] [-p <port>] [--stream <url>] [--media-type <media type>] [--stream-type <stream type>] [--media-app <media app>]
 
 Options:
     -a, --address <address>             Chromecast's network address.
@@ -24,6 +25,7 @@ Options:
         --stream <url>                  Stream specified URL to Chromecast connected device.
         --media-type <media_type>       Media type of the video to play. [default: video/mp4]
         --stream-type <stream_type>     Stream type to use (buffered, live or unknown). [default: unknown]
+        --media-app <media_app>         Media app to use for streaming. [default: default]
     -v, --verbose                       Toggle verbose output.
     -h, --help                          Print this help menu.
 ",
@@ -31,7 +33,8 @@ Options:
         flag_port: u16,
         flag_stream: Option<String>,
         flag_media_type: String,
-        flag_stream_type: String
+        flag_stream_type: String,
+        flag_media_app: String,
 );
 
 fn main() {
@@ -55,7 +58,7 @@ fn main() {
 
     chromecast.connection.connect(DEFAULT_DESTINATION_ID.to_owned());
     chromecast.heartbeat.ping();
-    chromecast.receiver.launch_app(CHROMECAST_APPS.default_media_receiver.to_owned());
+    chromecast.receiver.launch_app(ChromecastApp::from_str(args.flag_media_app.as_ref()).unwrap());
 
     loop {
         let message = chromecast.receive().unwrap();
@@ -68,7 +71,7 @@ fn main() {
             println!("Connection channel message received: {:?}", payload);
         } else if let Ok(payload) = chromecast.receiver.try_handle(&message) {
             match payload {
-                receiver::Reply::Status(reply) => {
+                Reply::Status(reply) => {
                     if reply.status.applications.len() > 0 && !media_loaded && !stream_url.is_empty() {
                         let application = &reply.status.applications[0];
 
