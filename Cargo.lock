@@ -31,13 +31,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "chromecast_link"
 version = "0.2.0"
-source = "git+https://github.com/azasypkin/chromecast-link.git#2b53e27391a27d1019d02a78d65570c96b074570"
+source = "git+https://github.com/azasypkin/chromecast-link.git#5a21b1188ad5b5c8e7ceb2eb83f16e448c503305"
 dependencies = [
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl 0.7.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "protobuf 1.0.22 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 0.7.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 0.7.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_macros 0.7.11 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -81,6 +81,11 @@ dependencies = [
  "winapi 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "itoa"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "kernel32-sys"
@@ -254,9 +259,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "serde_json"
-version = "0.7.3"
+version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
+ "itoa 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-traits 0.1.32 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 0.7.11 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

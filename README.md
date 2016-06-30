@@ -6,5 +6,6 @@ Just a helper tool for Rust [Chromecast Link](https://github.com/azasypkin/chrom
 
 ## Usage
 ```bash
-$ cargo run -- -a chromecast.local --play http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4 --content-type video/mp4
+$ cargo run -- -a chromecast.local --stream http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4 --media-type video/mp4
+$ cargo run -- -a chromecast.local --stream http://xxx.mp4 --stream-type buffered
 ```
