@@ -42,7 +42,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "chromecast_link"
 version = "0.2.0"
-source = "git+https://github.com/azasypkin/chromecast-link.git#d76e1bc04cd815782d466c0488d0361c0e19fea3"
+source = "git+https://github.com/azasypkin/chromecast-link.git#aa5fe2c2400cd6d3f6d4fab978c5d0dacf060436"
 dependencies = [
  "byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",

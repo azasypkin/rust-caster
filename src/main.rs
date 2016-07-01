@@ -14,8 +14,8 @@ use std::str::FromStr;
 use ansi_term::Colour::{Green, Red};
 
 use chromecast_link::Chromecast;
-use chromecast_link::channels::receiver::{ChromecastApp, Reply};
-use chromecast_link::channels::media::StreamType;
+use chromecast_link::channels::receiver::{ChromecastApp, Reply as ReceiverReply};
+use chromecast_link::channels::media::{StreamType, Reply as MediaReply};
 
 const DEFAULT_DESTINATION_ID: &'static str = "receiver-0";
 
@@ -79,7 +79,7 @@ fn main() {
             debug!("Connection channel message received: {:?}", payload);
         } else if let Ok(payload) = chromecast.receiver.try_handle(&message) {
             match payload {
-                Reply::Status(reply) => {
+                ReceiverReply::Status(reply) => {
                     let apps = reply.status.applications;
 
                     if args.flag_info.is_some() {
@@ -135,10 +135,6 @@ fn main() {
                             Some(app) => {
                                 chromecast.connection.connect(app.transport_id.as_ref()).unwrap();
 
-                                let media_channel = chromecast.create_media_channel(
-                                    app.transport_id.as_ref(),
-                                    app.session_id.as_ref()).unwrap();
-
                                 let media_stream_type = match args.flag_media_stream_type.as_ref() {
                                     "buffered" => StreamType::Buffered,
                                     "live" => StreamType::Live,
@@ -147,14 +143,29 @@ fn main() {
                                                 args.flag_media_stream_type)
                                 };
 
-                                media_channel.load(media.as_ref(), media_type.as_ref(),
-                                                   media_stream_type).unwrap();
+                                chromecast.media.load(app.transport_id.as_ref(),
+                                                      app.session_id.as_ref(), media.as_ref(),
+                                                      media_type.as_ref(),
+                                                      media_stream_type).unwrap();
                             }
                         }
                     }
                 }
                 _ => {
-                    println!("Receiver channel message received: {:?}", payload);
+                    debug!("Unprocessed receiver channel message: {:?}", payload);
+                }
+            }
+        } else if let Ok(payload) = chromecast.media.try_handle(&message) {
+            match payload {
+                MediaReply::MediaStatus(reply) => {
+                    if let Some(current_media) = reply.status.media {
+                        if !media.is_empty() && current_media.content_id == media {
+                            break;
+                        }
+                    }
+                }
+                _ => {
+                    debug!("Unprocessed media channel message: {:?}", payload);
                 }
             }
         }
