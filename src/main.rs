@@ -1,5 +1,4 @@
 #![feature(plugin)]
-#![plugin(docopt_macros)]
 
 extern crate ansi_term;
 extern crate docopt;
@@ -13,13 +12,15 @@ use std::str::FromStr;
 
 use ansi_term::Colour::{Green, Red};
 
-use chromecast_link::Chromecast;
-use chromecast_link::channels::receiver::{ChromecastApp, Reply as ReceiverReply};
-use chromecast_link::channels::media::{StreamType, Reply as MediaReply};
+use docopt::Docopt;
+
+use chromecast_link::{Chromecast, ChannelMessage};
+use chromecast_link::channels::media::{StreamType, MediaResponse};
+use chromecast_link::channels::receiver::{ChromecastApp, ReceiverResponse};
 
 const DEFAULT_DESTINATION_ID: &'static str = "receiver-0";
 
-docopt!(Args derive Debug, "
+const USAGE: &'static str = "
 Usage: chromecast-link-tool [-v] [-h] [-a <address>] [-p <port>] [-r <app to run>] [-s] [-i] [-m <media handle>] [--media-type <media type>] [--video-stream-type <stream type>] [--media-app <media app>]
 
 Options:
@@ -34,22 +35,27 @@ Options:
         --media-stream-type <stream_type>   Media stream type to use (buffered, live or none). [default: none]
     -v, --verbose                           Toggle verbose output.
     -h, --help                              Print this help menu.
-",
-        flag_address: Option<String>,
-        flag_port: u16,
-        flag_run: Option<String>,
-        flag_stop: Option<String>,
-        flag_info: Option<String>,
-        flag_media: Option<String>,
-        flag_media_type: Option<String>,
-        flag_media_app: String,
-        flag_media_stream_type: String,
-);
+";
+
+#[derive(Debug, RustcDecodable)]
+struct Args {
+    flag_address: Option<String>,
+    flag_port: u16,
+    flag_run: Option<String>,
+    flag_stop: Option<String>,
+    flag_info: Option<String>,
+    flag_media: Option<String>,
+    flag_media_type: Option<String>,
+    flag_media_app: String,
+    flag_media_stream_type: String,
+}
 
 fn main() {
     env_logger::init().unwrap();
 
-    let args: Args = Args::docopt().decode().unwrap_or_else(|e| e.exit());
+    let args: Args = Docopt::new(USAGE)
+        .and_then(|d| d.decode())
+        .unwrap_or_else(|e| e.exit());
 
     if args.flag_address.is_none() {
         println!("Please specify Chromecast's address!");
@@ -69,105 +75,119 @@ fn main() {
     let media_type = args.flag_media_type.unwrap_or("".to_owned());
 
     loop {
-        let message = chromecast.receive().unwrap();
+        match chromecast.receive() {
+            Ok(ChannelMessage::Connection(response)) => {
+                debug!("Connection channel message received: {:?}", response);
+            },
 
-        if let Ok(payload) = chromecast.heartbeat.try_handle(&message) {
-            if payload.typ == "PING" {
-                chromecast.heartbeat.pong().unwrap();
-            }
-        } else if let Ok(payload) = chromecast.connection.try_handle(&message) {
-            debug!("Connection channel message received: {:?}", payload);
-        } else if let Ok(payload) = chromecast.receiver.try_handle(&message) {
-            match payload {
-                ReceiverReply::Status(reply) => {
-                    let apps = reply.status.applications;
+            Ok(ChannelMessage::Hearbeat(response)) => {
+                if response.typ == "PING" {
+                    chromecast.heartbeat.pong().unwrap();
+                }
+            },
 
-                    if args.flag_info.is_some() {
-                        println!("\n{} {}",
-                                 Green.paint("Number of apps run:"),
-                                 Red.paint(apps.len().to_string()));
-                        for i in 0..apps.len() {
-                            println!("{}{}{}{}{}{}{}",
-                                     Green.paint("App#"),
-                                     Green.paint(i.to_string()),
-                                     Green.paint(": "),
-                                     Red.paint(apps[i].display_name.as_ref()),
-                                     Red.paint(" ("),
-                                     Red.paint(apps[i].app_id.as_ref()),
-                                     Red.paint(")"));
-                        }
-                        println!("{} {}",
-                                 Green.paint("Volume level:"),
-                                 Red.paint(reply.status.volume.level.to_string()));
-                        println!("{} {}\n",
-                                 Green.paint("Muted:"),
-                                 Red.paint(reply.status.volume.muted.to_string()));
-                        break;
-                    } else if args.flag_run.is_some() {
-                        let app = ChromecastApp::from_str(args.flag_run.as_ref().unwrap()).unwrap();
-                        chromecast.receiver.launch_app(app).unwrap();
-                      break;
-                    } else if args.flag_stop.is_some() {
-                        if apps.len() == 0 {
-                            println!("{}", Red.paint("There is no app to stop!"));
-                        } else {
-                            chromecast.receiver.stop_app(apps[0].session_id.as_ref()).unwrap();
-                            println!("{}{}{}{}{}",
-                                     Green.paint("The following app has been stopped: "),
-                                     Red.paint(apps[0].display_name.as_ref()),
-                                     Red.paint(" ("),
-                                     Red.paint(apps[0].app_id.as_ref()),
-                                     Red.paint(")"));
-                        }
+            Ok(ChannelMessage::Media(response)) => {
+                match response {
+                    MediaResponse::MediaStatus(reply) => {
+                        let current_media = reply.status.iter().find(|ref status| {
+                            if let Some(ref current_media) = status.media {
+                                return !media.is_empty() && current_media.content_id == media;
+                            }
 
-                        break;
-                    } else if !media.is_empty() {
-                        // Check if required app is run.
-                        let media_app = ChromecastApp::from_str(
-                            args.flag_media_app.as_ref()).unwrap();
-
-                        let app = apps.iter().find(|ref app| {
-                            ChromecastApp::from_str(app.app_id.as_ref()).unwrap() == media_app
+                            false
                         });
 
-                        match app {
-                            None => chromecast.receiver.launch_app(media_app).unwrap(),
-                            Some(app) => {
-                                chromecast.connection.connect(app.transport_id.as_ref()).unwrap();
-
-                                let media_stream_type = match args.flag_media_stream_type.as_ref() {
-                                    "buffered" => StreamType::Buffered,
-                                    "live" => StreamType::Live,
-                                    "none" => StreamType::None,
-                                    _ => panic!("Unsupported stream type {}!",
-                                                args.flag_media_stream_type)
-                                };
-
-                                chromecast.media.load(app.transport_id.as_ref(),
-                                                      app.session_id.as_ref(), media.as_ref(),
-                                                      media_type.as_ref(),
-                                                      media_stream_type).unwrap();
-                            }
-                        }
-                    }
-                }
-                _ => {
-                    debug!("Unprocessed receiver channel message: {:?}", payload);
-                }
-            }
-        } else if let Ok(payload) = chromecast.media.try_handle(&message) {
-            match payload {
-                MediaReply::MediaStatus(reply) => {
-                    if let Some(current_media) = reply.status.media {
-                        if !media.is_empty() && current_media.content_id == media {
+                        if current_media.is_some() {
                             break;
                         }
                     }
+                    _ => {
+                        debug!("Unprocessed media channel message: {:?}", response);
+                    }
                 }
-                _ => {
-                    debug!("Unprocessed media channel message: {:?}", payload);
+            },
+
+            Ok(ChannelMessage::Receiver(response)) => {
+                match response {
+                    ReceiverResponse::Status(reply) => {
+                        let apps = reply.status.applications;
+
+                        if args.flag_info.is_some() {
+                            println!("\n{} {}",
+                                     Green.paint("Number of apps run:"),
+                                     Red.paint(apps.len().to_string()));
+                            for i in 0..apps.len() {
+                                println!("{}{}{}{}{}{}{}",
+                                         Green.paint("App#"),
+                                         Green.paint(i.to_string()),
+                                         Green.paint(": "),
+                                         Red.paint(apps[i].display_name.as_ref()),
+                                         Red.paint(" ("),
+                                         Red.paint(apps[i].app_id.as_ref()),
+                                         Red.paint(")"));
+                            }
+                            println!("{} {}",
+                                     Green.paint("Volume level:"),
+                                     Red.paint(reply.status.volume.level.to_string()));
+                            println!("{} {}\n",
+                                     Green.paint("Muted:"),
+                                     Red.paint(reply.status.volume.muted.to_string()));
+                            break;
+                        } else if args.flag_run.is_some() {
+                            let app = ChromecastApp::from_str(args.flag_run.as_ref().unwrap()).unwrap();
+                            chromecast.receiver.launch_app(app).unwrap();
+                            break;
+                        } else if args.flag_stop.is_some() {
+                            if apps.len() == 0 {
+                                println!("{}", Red.paint("There is no app to stop!"));
+                            } else {
+                                chromecast.receiver.stop_app(apps[0].session_id.as_ref()).unwrap();
+                                println!("{}{}{}{}{}",
+                                         Green.paint("The following app has been stopped: "),
+                                         Red.paint(apps[0].display_name.as_ref()),
+                                         Red.paint(" ("),
+                                         Red.paint(apps[0].app_id.as_ref()),
+                                         Red.paint(")"));
+                            }
+
+                            break;
+                        } else if !media.is_empty() {
+                            // Check if required app is run.
+                            let media_app = ChromecastApp::from_str(
+                                args.flag_media_app.as_ref()).unwrap();
+
+                            let app = apps.iter().find(|ref app| {
+                                ChromecastApp::from_str(app.app_id.as_ref()).unwrap() == media_app
+                            });
+
+                            match app {
+                                None => chromecast.receiver.launch_app(media_app).unwrap(),
+                                Some(app) => {
+                                    chromecast.connection.connect(app.transport_id.as_ref()).unwrap();
+
+                                    let media_stream_type = match args.flag_media_stream_type.as_ref() {
+                                        "buffered" => StreamType::Buffered,
+                                        "live" => StreamType::Live,
+                                        "none" => StreamType::None,
+                                        _ => panic!("Unsupported stream type {}!",
+                                                args.flag_media_stream_type)
+                                    };
+
+                                    chromecast.media.load(app.transport_id.as_ref(),
+                                                          app.session_id.as_ref(), media.as_ref(),
+                                                          media_type.as_ref(),
+                                                          media_stream_type).unwrap();
+                                }
+                            }
+                        }
+                    }
+                    _ => {
+                        debug!("Unprocessed receiver channel message: {:?}", response);
+                    }
                 }
-            }
+            },
+
+            Err(error) => error!("Error occurred while receiving message {}", error)
         }
     }
 }
