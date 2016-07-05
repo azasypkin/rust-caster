@@ -1,14 +1,14 @@
-# Chromecast Link Tool
+# Rust Caster
 
-[![Build Status](https://travis-ci.org/azasypkin/chromecast-link-tool.svg?branch=master)](https://travis-ci.org/azasypkin/chromecast-link-tool)
+[![Build Status](https://travis-ci.org/azasypkin/rust-caster.svg?branch=master)](https://travis-ci.org/azasypkin/rust-caster)
 
-Just a helper tool for Rust [Chromecast Link](https://github.com/azasypkin/chromecast-link) crate.
+Just a helper tool for [Rust Cast](https://github.com/azasypkin/rust-cast) crate.
 
 ## Usage
 
 ### Generic features
 ```bash
-// Get some info about the Chromecast-enabled device.
+// Get some info about the Google Cast enabled device (eg. Chromecast).
 $ cargo run -- -a chromecast.local -i
 
 Number of apps run: 1

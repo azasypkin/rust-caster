@@ -1,12 +1,12 @@
 [root]
-name = "chromecast-link-tool"
+name = "rust-caster"
 version = "0.3.0"
 dependencies = [
  "ansi_term 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
- "chromecast_link 0.3.0 (git+https://github.com/azasypkin/chromecast-link.git)",
  "docopt 0.6.81 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rust_cast 0.3.0 (git+https://github.com/azasypkin/rust-cast.git)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -37,20 +37,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "byteorder"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "chromecast_link"
-version = "0.3.0"
-source = "git+https://github.com/azasypkin/chromecast-link.git#e763667d1bc6914f9c3cc1466ed611f5ca403dd7"
-dependencies = [
- "byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "openssl 0.7.14 (registry+https://github.com/rust-lang/crates.io-index)",
- "protobuf 1.0.22 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde 0.7.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_json 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "serde_macros 0.7.12 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
 [[package]]
 name = "docopt"
@@ -233,6 +219,20 @@ dependencies = [
 name = "regex-syntax"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "rust_cast"
+version = "0.3.0"
+source = "git+https://github.com/azasypkin/rust-cast.git#c24e712265d90d74865b23bf680f37157bb10023"
+dependencies = [
+ "byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "openssl 0.7.14 (registry+https://github.com/rust-lang/crates.io-index)",
+ "protobuf 1.0.22 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde 0.7.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_json 0.7.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde_macros 0.7.12 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "rustc-serialize"

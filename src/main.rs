@@ -6,7 +6,7 @@ extern crate env_logger;
 #[macro_use]
 extern crate log;
 extern crate rustc_serialize;
-extern crate chromecast_link;
+extern crate rust_cast;
 
 use std::str::FromStr;
 
@@ -14,22 +14,22 @@ use ansi_term::Colour::{Green, Red};
 
 use docopt::Docopt;
 
-use chromecast_link::{Chromecast, ChannelMessage};
-use chromecast_link::channels::media::{StreamType, MediaResponse};
-use chromecast_link::channels::receiver::{ChromecastApp, ReceiverResponse};
+use rust_cast::{CastDevice, ChannelMessage};
+use rust_cast::channels::media::{StreamType, MediaResponse};
+use rust_cast::channels::receiver::{CastDeviceApp, ReceiverResponse};
 
 const DEFAULT_DESTINATION_ID: &'static str = "receiver-0";
 
 const USAGE: &'static str = "
-Usage: chromecast-link-tool [-v] [-h] [-a <address>] [-p <port>] [-r <app to run>] [-s] [-i] [-m <media handle>] [--media-type <media type>] [--video-stream-type <stream type>] [--media-app <media app>]
+Usage: rust-caster [-v] [-h] [-a <address>] [-p <port>] [-r <app to run>] [-s] [-i] [-m <media handle>] [--media-type <media type>] [--video-stream-type <stream type>] [--media-app <media app>]
 
 Options:
-    -a, --address <address>                 Chromecast's network address.
-    -p, --port <port>                       Chromecast's network port. [default: 8009]
+    -a, --address <address>                 Cast device network address.
+    -p, --port <port>                       Cast device network port. [default: 8009]
     -r, --run <app_to_run>                  Run the app with specified id/name.
     -s, --stop                              Stops currently active app.
     -i, --info                              Returns the info about the receiver.
-    -m, --media <media_handle>              Media handle (URL for image or video, URL token for youtube video etc.) to load on the Chromecast connected device.
+    -m, --media <media_handle>              Media handle (URL for image or video, URL token for youtube video etc.) to load on the Cast connected device.
         --media-type <media_type>           Type of the media to load.
         --media-app <media_app>             Media app to use for streaming. [default: default]
         --media-stream-type <stream_type>   Media stream type to use (buffered, live or none). [default: none]
@@ -58,31 +58,31 @@ fn main() {
         .unwrap_or_else(|e| e.exit());
 
     if args.flag_address.is_none() {
-        println!("Please specify Chromecast's address!");
+        println!("Please specify Cast Device address!");
         std::process::exit(1);
     }
 
-    let chromecast = match Chromecast::connect(args.flag_address.unwrap(), args.flag_port) {
-        Ok(chromecast) => chromecast,
-        Err(err) => panic!("Chromecast is unable to establish connection: {:?}", err)
+    let cast_device = match CastDevice::connect(args.flag_address.unwrap(), args.flag_port) {
+        Ok(cast_device) => cast_device,
+        Err(err) => panic!("Could not establish connection with Cast Device: {:?}", err)
     };
 
-    chromecast.connection.connect(DEFAULT_DESTINATION_ID.to_owned()).unwrap();
-    chromecast.heartbeat.ping().unwrap();
-    chromecast.receiver.get_status().unwrap();
+    cast_device.connection.connect(DEFAULT_DESTINATION_ID.to_owned()).unwrap();
+    cast_device.heartbeat.ping().unwrap();
+    cast_device.receiver.get_status().unwrap();
 
     let media = args.flag_media.unwrap_or("".to_owned());
     let media_type = args.flag_media_type.unwrap_or("".to_owned());
 
     loop {
-        match chromecast.receive() {
+        match cast_device.receive() {
             Ok(ChannelMessage::Connection(response)) => {
                 debug!("Connection channel message received: {:?}", response);
             },
 
             Ok(ChannelMessage::Hearbeat(response)) => {
                 if response.typ == "PING" {
-                    chromecast.heartbeat.pong().unwrap();
+                    cast_device.heartbeat.pong().unwrap();
                 }
             },
 
@@ -134,14 +134,15 @@ fn main() {
                                      Red.paint(reply.status.volume.muted.to_string()));
                             break;
                         } else if args.flag_run.is_some() {
-                            let app = ChromecastApp::from_str(args.flag_run.as_ref().unwrap()).unwrap();
-                            chromecast.receiver.launch_app(app).unwrap();
+                            let app = CastDeviceApp::from_str(
+                                args.flag_run.as_ref().unwrap()).unwrap();
+                            cast_device.receiver.launch_app(app).unwrap();
                             break;
                         } else if args.flag_stop.is_some() {
                             if apps.len() == 0 {
                                 println!("{}", Red.paint("There is no app to stop!"));
                             } else {
-                                chromecast.receiver.stop_app(apps[0].session_id.as_ref()).unwrap();
+                                cast_device.receiver.stop_app(apps[0].session_id.as_ref()).unwrap();
                                 println!("{}{}{}{}{}",
                                          Green.paint("The following app has been stopped: "),
                                          Red.paint(apps[0].display_name.as_ref()),
@@ -153,17 +154,18 @@ fn main() {
                             break;
                         } else if !media.is_empty() {
                             // Check if required app is run.
-                            let media_app = ChromecastApp::from_str(
+                            let media_app = CastDeviceApp::from_str(
                                 args.flag_media_app.as_ref()).unwrap();
 
                             let app = apps.iter().find(|ref app| {
-                                ChromecastApp::from_str(app.app_id.as_ref()).unwrap() == media_app
+                                CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == media_app
                             });
 
                             match app {
-                                None => chromecast.receiver.launch_app(media_app).unwrap(),
+                                None => cast_device.receiver.launch_app(media_app).unwrap(),
                                 Some(app) => {
-                                    chromecast.connection.connect(app.transport_id.as_ref()).unwrap();
+                                    cast_device.connection.connect(
+                                        app.transport_id.as_ref()).unwrap();
 
                                     let media_stream_type = match args.flag_media_stream_type.as_ref() {
                                         "buffered" => StreamType::Buffered,
@@ -173,7 +175,7 @@ fn main() {
                                                 args.flag_media_stream_type)
                                     };
 
-                                    chromecast.media.load(app.transport_id.as_ref(),
+                                    cast_device.media.load(app.transport_id.as_ref(),
                                                           app.session_id.as_ref(), media.as_ref(),
                                                           media_type.as_ref(),
                                                           media_stream_type).unwrap();
