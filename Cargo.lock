@@ -6,7 +6,7 @@ dependencies = [
  "docopt 0.6.81 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.3.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "rust_cast 0.4.0 (git+https://github.com/azasypkin/rust-cast.git)",
+ "rust_cast 0.5.0 (git+https://github.com/azasypkin/rust-cast.git)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -222,8 +222,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rust_cast"
-version = "0.4.0"
-source = "git+https://github.com/azasypkin/rust-cast.git#3228937569d0be966bac5bd6630dd55a8b46019b"
+version = "0.5.0"
+source = "git+https://github.com/azasypkin/rust-cast.git#f40ffcace50dabaaab302b4a5f3b66bede61f866"
 dependencies = [
  "byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",

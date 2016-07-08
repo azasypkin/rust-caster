@@ -15,6 +15,8 @@ use ansi_term::Colour::{Green, Red};
 use docopt::Docopt;
 
 use rust_cast::{CastDevice, ChannelMessage};
+use rust_cast::channels::connection::ConnectionResponse;
+use rust_cast::channels::heartbeat::HeartbeatResponse;
 use rust_cast::channels::media::{StreamType, MediaResponse};
 use rust_cast::channels::receiver::{CastDeviceApp, ReceiverResponse};
 
@@ -77,18 +79,35 @@ fn main() {
     loop {
         match cast_device.receive() {
             Ok(ChannelMessage::Connection(response)) => {
-                debug!("Connection channel message received: {:?}", response);
+                match response {
+                    ConnectionResponse::Connect => debug!("[Connection] Connect message received."),
+                    ConnectionResponse::Close => debug!("[Connection] Close message received."),
+                    ConnectionResponse::NotImplemented(typ, value) => {
+                        warn!("[Connection] Support for the following message type `{}` is not yet
+                               implemented {:?}", typ, value);
+                    }
+                };
             },
 
-            Ok(ChannelMessage::Hearbeat(response)) => {
-                if response.typ == "PING" {
-                    cast_device.heartbeat.pong().unwrap();
-                }
+            Ok(ChannelMessage::Heartbeat(response)) => {
+                match response {
+                    HeartbeatResponse::Ping => {
+                        debug!("[Heartbeat] Ping message received.");
+                        cast_device.heartbeat.pong().unwrap();
+                    },
+                    HeartbeatResponse::Pong => debug!("[Heartbeat] Pong message received."),
+                    HeartbeatResponse::NotImplemented(typ, value) => {
+                        warn!("[Heartbeat] Support for the following message type `{}` is not yet
+                               implemented {:?}", typ, value);
+                    }
+                };
             },
 
             Ok(ChannelMessage::Media(response)) => {
                 match response {
                     MediaResponse::MediaStatus(reply) => {
+                        debug!("[Media] Status message received {:?}.", reply);
+
                         let current_media = reply.status.iter().find(|ref status| {
                             if let Some(ref current_media) = status.media {
                                 return !media.is_empty() && current_media.content_id == media;
@@ -100,9 +119,13 @@ fn main() {
                         if current_media.is_some() {
                             break;
                         }
-                    }
-                    _ => {
-                        debug!("Unprocessed media channel message: {:?}", response);
+                    },
+                    MediaResponse::LoadCancelled(reply) => {
+                        debug!("[Media] Load cancelled message received {:?}.", reply);
+                    },
+                    MediaResponse::NotImplemented(typ, value) => {
+                        warn!("[Media] Support for the following message type `{}` is not yet
+                               implemented {:?}", typ, value);
                     }
                 }
             },
@@ -110,6 +133,8 @@ fn main() {
             Ok(ChannelMessage::Receiver(response)) => {
                 match response {
                     ReceiverResponse::Status(reply) => {
+                        debug!("[Receiver] Status message received {:?}.", reply);
+
                         let apps = reply.status.applications;
 
                         if args.flag_info.is_some() {
@@ -182,12 +207,21 @@ fn main() {
                                 }
                             }
                         }
-                    }
-                    _ => {
-                        debug!("Unprocessed receiver channel message: {:?}", response);
+                    },
+                    ReceiverResponse::LaunchError(reply) => {
+                        debug!("[Receiver] Launch error message received {:?}.", reply);
+                    },
+                    ReceiverResponse::NotImplemented(typ, value) => {
+                        warn!("[Receiver] Support for the following message type `{}` is not yet
+                               implemented {:?}", typ, value);
                     }
                 }
             },
+
+            Ok(ChannelMessage::Raw(response)) => {
+                debug!("Support for the following message type is not yet supported: {:?}",
+                       response);
+            }
 
             Err(error) => error!("Error occurred while receiving message {}", error)
         }
