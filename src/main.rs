@@ -23,7 +23,7 @@ use rust_cast::channels::receiver::{CastDeviceApp, ReceiverResponse};
 const DEFAULT_DESTINATION_ID: &'static str = "receiver-0";
 
 const USAGE: &'static str = "
-Usage: rust-caster [-v] [-h] [-a <address>] [-p <port>] [-r <app to run>] [-s] [-i] [-m <media handle>] [--media-type <media type>] [--video-stream-type <stream type>] [--media-app <media app>]
+Usage: rust-caster [-v] [-h] [-a <address>] [-p <port>] [-r <app to run>] [-s] [-i] [-m <media handle>] [--media-type <media type>] [--video-stream-type <stream type>] [--media-app <media app>] [--media-volume <level> | --media-mute|--media-unmute]
 
 Options:
     -a, --address <address>                 Cast device network address.
@@ -35,6 +35,9 @@ Options:
         --media-type <media_type>           Type of the media to load.
         --media-app <media_app>             Media app to use for streaming. [default: default]
         --media-stream-type <stream_type>   Media stream type to use (buffered, live or none). [default: none]
+        --media-volume <level>              Media volume level.
+        --media-mute                        Mute cast device.
+        --media-unmute                      Unmute cast device.
     -v, --verbose                           Toggle verbose output.
     -h, --help                              Print this help menu.
 ";
@@ -50,6 +53,9 @@ struct Args {
     flag_media_type: Option<String>,
     flag_media_app: String,
     flag_media_stream_type: String,
+    flag_media_volume: Option<f32>,
+    flag_media_mute: bool,
+    flag_media_unmute: bool,
 }
 
 fn main() {
@@ -151,12 +157,18 @@ fn main() {
                                          Red.paint(apps[i].app_id.as_ref()),
                                          Red.paint(")"));
                             }
-                            println!("{} {}",
-                                     Green.paint("Volume level:"),
-                                     Red.paint(reply.status.volume.level.to_string()));
-                            println!("{} {}\n",
-                                     Green.paint("Muted:"),
-                                     Red.paint(reply.status.volume.muted.to_string()));
+
+                            if reply.status.volume.level.is_some() {
+                                println!("{} {}",
+                                         Green.paint("Volume level:"),
+                                         Red.paint(reply.status.volume.level.unwrap().to_string()));
+                            }
+
+                            if reply.status.volume.muted.is_some() {
+                                println!("{} {}\n",
+                                         Green.paint("Muted:"),
+                                         Red.paint(reply.status.volume.muted.unwrap().to_string()));
+                            }
                             break;
                         } else if args.flag_run.is_some() {
                             let app = CastDeviceApp::from_str(
@@ -206,6 +218,21 @@ fn main() {
                                                           media_stream_type).unwrap();
                                 }
                             }
+                        } else if args.flag_media_volume.is_some() {
+                            let level = args.flag_media_volume.unwrap();
+                            cast_device.receiver.set_volume(level).unwrap();
+                            println!("{}{}", Green.paint("Volume level has been set to: "),
+                                     Red.paint(level.to_string()));
+
+                            break;
+                        } else if args.flag_media_mute {
+                            cast_device.receiver.set_volume(true).unwrap();
+                            println!("{}", Green.paint("Cast device is muted."));
+                            break;
+                        } else if args.flag_media_unmute {
+                            cast_device.receiver.set_volume(false).unwrap();
+                            println!("{}", Green.paint("Cast device is unmuted."));
+                            break;
                         }
                     },
                     ReceiverResponse::LaunchError(reply) => {
