@@ -1,5 +1,3 @@
-#![feature(plugin)]
-
 extern crate ansi_term;
 extern crate docopt;
 extern crate env_logger;
