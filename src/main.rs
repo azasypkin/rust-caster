@@ -16,12 +16,12 @@ use rust_cast::{CastDevice, ChannelMessage};
 use rust_cast::channels::connection::ConnectionResponse;
 use rust_cast::channels::heartbeat::HeartbeatResponse;
 use rust_cast::channels::media::{StreamType, MediaResponse};
-use rust_cast::channels::receiver::{CastDeviceApp, ReceiverResponse};
+use rust_cast::channels::receiver::{CastDeviceApp, ReceiverResponse, Status as ReceiverStatus};
 
 const DEFAULT_DESTINATION_ID: &'static str = "receiver-0";
 
 const USAGE: &'static str = "
-Usage: rust-caster [-v] [-h] [-a <address>] [-p <port>] [-r <app to run>] [-s] [-i] [-m <media handle>] [--media-type <media type>] [--video-stream-type <stream type>] [--media-app <media app>] [--media-volume <level> | --media-mute|--media-unmute]
+Usage: rust-caster [-v] [-h] [-a <address>] [-p <port>] [-r <app to run>] [-s] [-i] [-m <media handle>] [--media-type <media type>] [--video-stream-type <stream type>] [--media-app <media app>] [--media-volume <level> | --media-mute| --media-unmute | --media-pause | --media-play | --media-stop | --media-seek <time>]
 
 Options:
     -a, --address <address>                 Cast device network address.
@@ -36,6 +36,10 @@ Options:
         --media-volume <level>              Media volume level.
         --media-mute                        Mute cast device.
         --media-unmute                      Unmute cast device.
+        --media-pause                       Pause currently active media.
+        --media-play                        Play currently paused media.
+        --media-stop                        Stops currently active media.
+        --media-seek <time>                 Sets the current position in the media stream.
     -v, --verbose                           Toggle verbose output.
     -h, --help                              Print this help menu.
 ";
@@ -54,6 +58,10 @@ struct Args {
     flag_media_volume: Option<f32>,
     flag_media_mute: bool,
     flag_media_unmute: bool,
+    flag_media_pause: bool,
+    flag_media_play: bool,
+    flag_media_stop: bool,
+    flag_media_seek: Option<f32>,
 }
 
 fn main() {
@@ -79,6 +87,8 @@ fn main() {
 
     let media = args.flag_media.unwrap_or("".to_owned());
     let media_type = args.flag_media_type.unwrap_or("".to_owned());
+
+    let mut current_status: Option<ReceiverStatus> = None;
 
     loop {
         match cast_device.receive() {
@@ -109,23 +119,70 @@ fn main() {
 
             Ok(ChannelMessage::Media(response)) => {
                 match response {
-                    MediaResponse::MediaStatus(reply) => {
-                        debug!("[Media] Status message received {:?}.", reply);
+                    MediaResponse::Status(statuses) => {
+                        debug!("[Media] Status message received {:?}.", statuses);
 
-                        let current_media = reply.status.iter().find(|ref status| {
-                            if let Some(ref current_media) = status.media {
-                                return !media.is_empty() && current_media.content_id == media;
+                        if !media.is_empty() {
+                            let current_media = statuses.iter().find(|ref status| {
+                                if let Some(ref current_media) = status.media {
+                                    return current_media.content_id == media;
+                                }
+
+                                false
+                            });
+
+                            if current_media.is_some() {
+                                break;
                             }
+                        } else if args.flag_media_pause || args.flag_media_play ||
+                            args.flag_media_stop || args.flag_media_seek.is_some() {
+                            match statuses.first() {
+                                None => {},
+                                Some(status) => {
+                                    let media_app = CastDeviceApp::from_str(
+                                        args.flag_media_app.as_ref()).unwrap();
 
-                            false
-                        });
+                                    let ref apps = current_status.as_ref().unwrap().applications;
 
-                        if current_media.is_some() {
-                            break;
+                                    let app = apps.iter().find(|ref app| {
+                                        CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() ==
+                                            media_app
+                                    });
+
+                                    match app {
+                                        None => break,
+                                        Some(app) => {
+                                            if args.flag_media_pause {
+                                                cast_device.media.pause(
+                                                    app.transport_id.as_ref(),
+                                                    status.media_session_id).unwrap();
+                                            } else if args.flag_media_play {
+                                                cast_device.media.play(
+                                                    app.transport_id.as_ref(),
+                                                    status.media_session_id).unwrap();
+                                            } else if args.flag_media_stop {
+                                                cast_device.media.stop(
+                                                    app.transport_id.as_ref(),
+                                                    status.media_session_id).unwrap();
+                                            } else if args.flag_media_seek.is_some() {
+                                                cast_device.media.seek(
+                                                    app.transport_id.as_ref(),
+                                                    status.media_session_id,
+                                                    Some(args.flag_media_seek.unwrap()),
+                                                    None).unwrap();
+                                            }
+                                        }
+                                    }
+
+
+                                    break;
+                                }
+                            }
                         }
+
                     },
-                    MediaResponse::LoadCancelled(reply) => {
-                        debug!("[Media] Load cancelled message received {:?}.", reply);
+                    MediaResponse::LoadCancelled => {
+                        debug!("[Media] Load cancelled message received.");
                     },
                     MediaResponse::NotImplemented(typ, value) => {
                         warn!("[Media] Support for the following message type `{}` is not yet
@@ -136,10 +193,13 @@ fn main() {
 
             Ok(ChannelMessage::Receiver(response)) => {
                 match response {
-                    ReceiverResponse::Status(reply) => {
-                        debug!("[Receiver] Status message received {:?}.", reply);
+                    ReceiverResponse::Status(status) => {
+                        debug!("[Receiver] Status message received {:?}.", status);
 
-                        let apps = reply.status.applications;
+                        current_status = Some(status);
+
+                        let status = current_status.as_ref().unwrap();
+                        let ref apps = status.applications;
 
                         if args.flag_info.is_some() {
                             println!("\n{} {}",
@@ -156,16 +216,16 @@ fn main() {
                                          Red.paint(")"));
                             }
 
-                            if reply.status.volume.level.is_some() {
+                            if status.volume.level.is_some() {
                                 println!("{} {}",
                                          Green.paint("Volume level:"),
-                                         Red.paint(reply.status.volume.level.unwrap().to_string()));
+                                         Red.paint(status.volume.level.unwrap().to_string()));
                             }
 
-                            if reply.status.volume.muted.is_some() {
+                            if status.volume.muted.is_some() {
                                 println!("{} {}\n",
                                          Green.paint("Muted:"),
-                                         Red.paint(reply.status.volume.muted.unwrap().to_string()));
+                                         Red.paint(status.volume.muted.unwrap().to_string()));
                             }
                             break;
                         } else if args.flag_run.is_some() {
@@ -231,10 +291,29 @@ fn main() {
                             cast_device.receiver.set_volume(false).unwrap();
                             println!("{}", Green.paint("Cast device is unmuted."));
                             break;
+                        } else if args.flag_media_pause || args.flag_media_play ||
+                            args.flag_media_stop || args.flag_media_seek.is_some() {
+
+                            let media_app = CastDeviceApp::from_str(
+                                args.flag_media_app.as_ref()).unwrap();
+
+                            let app = apps.iter().find(|ref app| {
+                                CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == media_app
+                            });
+
+                            match app {
+                                None => break,
+                                Some(app) => {
+                                    cast_device.connection.connect(
+                                        app.transport_id.as_ref()).unwrap();
+                                    cast_device.media.get_status(
+                                        app.transport_id.as_ref()).unwrap();
+                                }
+                            }
                         }
                     },
-                    ReceiverResponse::LaunchError(reply) => {
-                        debug!("[Receiver] Launch error message received {:?}.", reply);
+                    ReceiverResponse::LaunchError => {
+                        debug!("[Receiver] Launch error message received.");
                     },
                     ReceiverResponse::NotImplemented(typ, value) => {
                         warn!("[Receiver] Support for the following message type `{}` is not yet
