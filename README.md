@@ -19,8 +19,11 @@ Muted: false
 // Run specific app on the Chromecast.
 $ cargo run -- -a chromecast.local -r youtube
 
+// Stop specific active app.
+$ cargo run -- -a chromecast.local -s youtube
+
 // Stop currently active app.
-$ cargo run -- -a chromecast.local -s
+$ cargo run -- -a chromecast.local --stop-current
 
 The following app has been stopped: Default Media Receiver (CC1AD845)
 ```

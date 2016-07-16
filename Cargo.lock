@@ -1,12 +1,12 @@
 [root]
 name = "rust-caster"
-version = "0.7.0"
+version = "0.8.0"
 dependencies = [
  "ansi_term 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "docopt 0.6.81 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "rust_cast 0.7.0 (git+https://github.com/azasypkin/rust-cast.git)",
+ "rust_cast 0.8.0 (git+https://github.com/azasypkin/rust-cast.git)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -229,8 +229,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rust_cast"
-version = "0.7.0"
-source = "git+https://github.com/azasypkin/rust-cast.git#045f7a65f9bf5d40f13cc2b72e09761c9ca507b4"
+version = "0.8.0"
+source = "git+https://github.com/azasypkin/rust-cast.git#f225096a7097baefc6811cabb7a2fb704c7e92a7"
 dependencies = [
  "byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
