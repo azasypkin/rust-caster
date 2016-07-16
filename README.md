@@ -8,7 +8,7 @@ Just a helper tool for [Rust Cast](https://github.com/azasypkin/rust-cast) crate
 
 ### Generic features
 ```bash
-// Get some info about the Google Cast enabled device (eg. Chromecast).
+// Get some info about the Google Cast enabled device (e.g. Chromecast).
 $ cargo run -- -a chromecast.local -i
 
 Number of apps run: 1
@@ -41,6 +41,21 @@ $ cargo run -- -a chromecast.local -m 7LcUOEP7Brc --media-app youtube
 
 // Display an image.
 $ cargo run -- -a chromecast.local -m https://azasypkin.github.io/style-my-image/images/mozilla.jpg
+
+// Change volume level.
+$ cargo run -- -a chromecast.local --media-volume 0.5
+
+// Mute/unmute media.
+$ cargo run -- -a chromecast.local --media-mute [--media-unmute]
+
+// Pause media.
+$ cargo run -- -a chromecast.local --media-app youtube --media-pause
+
+// Resume/play media.
+$ cargo run -- -a chromecast.local --media-app youtube --media-play
+
+// Seek media.
+$ cargo run -- -a chromecast.local --media-app youtube --media-seek 100
 ```
 
 For all possible values of `--media-type` see [Supported Media for Google Cast](https://developers.google.com/cast/docs/media).
