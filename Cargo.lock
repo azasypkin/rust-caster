@@ -1,12 +1,12 @@
 [root]
 name = "rust-caster"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
- "ansi_term 0.7.5 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ansi_term 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "docopt 0.6.81 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",
- "rust_cast 0.8.0 (git+https://github.com/azasypkin/rust-cast.git)",
+ "rust_cast 0.8.1 (git+https://github.com/azasypkin/rust-cast.git)",
  "rustc-serialize 0.3.19 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -20,7 +20,7 @@ dependencies = [
 
 [[package]]
 name = "ansi_term"
-version = "0.7.5"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -67,7 +67,7 @@ dependencies = [
 
 [[package]]
 name = "gcc"
-version = "0.3.31"
+version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -135,7 +135,7 @@ version = "0.7.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bitflags 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "gcc 0.3.31 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.32 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl-sys 0.7.14 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -159,7 +159,7 @@ name = "openssl-sys-extras"
 version = "0.7.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "gcc 0.3.31 (registry+https://github.com/rust-lang/crates.io-index)",
+ "gcc 0.3.32 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.14 (registry+https://github.com/rust-lang/crates.io-index)",
  "openssl-sys 0.7.14 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -229,8 +229,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rust_cast"
-version = "0.8.0"
-source = "git+https://github.com/azasypkin/rust-cast.git#f225096a7097baefc6811cabb7a2fb704c7e92a7"
+version = "0.8.1"
+source = "git+https://github.com/azasypkin/rust-cast.git#5beaf2b2a5f3c6e298266a49d86b34d64c9d167d"
 dependencies = [
  "byteorder 0.5.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.3.6 (registry+https://github.com/rust-lang/crates.io-index)",

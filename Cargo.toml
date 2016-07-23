@@ -1,10 +1,10 @@
 [package]
 name = "rust-caster"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["Aleh Zasypkin <aleh.zasypkin@gmail.com>"]
 
 [dependencies]
-ansi_term = "0.7.5"
+ansi_term = "0.8.0"
 rust_cast = { git = "https://github.com/azasypkin/rust-cast.git", branch = "master" }
 docopt = "0.6.81"
 env_logger = "0.3.4"
