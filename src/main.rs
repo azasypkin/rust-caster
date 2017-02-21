@@ -203,7 +203,8 @@ fn main() {
         std::process::exit(1);
     }
 
-    let cast_device = match CastDevice::connect(args.flag_address.unwrap(), args.flag_port) {
+    let cast_device = match CastDevice::connect_without_host_verification(
+        args.flag_address.unwrap(), args.flag_port) {
         Ok(cast_device) => cast_device,
         Err(err) => panic!("Could not establish connection with Cast Device: {:?}", err)
     };
