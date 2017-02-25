@@ -209,7 +209,7 @@ fn main() {
         Err(err) => panic!("Could not establish connection with Cast Device: {:?}", err)
     };
 
-    cast_device.connection.connect(DEFAULT_DESTINATION_ID.to_owned()).unwrap();
+    cast_device.connection.connect(DEFAULT_DESTINATION_ID.to_string()).unwrap();
     cast_device.heartbeat.ping().unwrap();
 
     // Information about cast device.
@@ -322,7 +322,7 @@ fn main() {
 
     // Play media and keep connection.
     if let Some(media) = args.flag_media {
-        let media_type = args.flag_media_type.unwrap_or("".to_owned());
+        let media_type = args.flag_media_type.unwrap_or("".to_string());
 
         let media_stream_type = match args.flag_media_stream_type.as_ref() {
             value @ "buffered" | value @ "live" | value @ "none" =>
