@@ -125,9 +125,10 @@ fn run_app(device: &CastDevice, app_to_run: &CastDeviceApp) {
 fn stop_app(device: &CastDevice, app_to_run: &CastDeviceApp) {
     let status = device.receiver.get_status().unwrap();
 
-    let app = status.applications.iter().find(|app| {
-        &CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == app_to_run
-    });
+    let app = status
+        .applications
+        .iter()
+        .find(|app| &CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == app_to_run);
 
     match app {
         Some(app) => {
@@ -253,7 +254,7 @@ fn play_media(device: &CastDevice, app_to_run: &CastDeviceApp, media: String, me
 }
 
 fn main() {
-    env_logger::init().unwrap();
+    env_logger::init();
 
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
@@ -323,9 +324,10 @@ fn main() {
         let app_to_manage = CastDeviceApp::from_str(args.flag_media_app.as_ref()).unwrap();
         let status = cast_device.receiver.get_status().unwrap();
 
-        let app = status.applications.iter().find(|app| {
-            CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == app_to_manage
-        });
+        let app = status
+            .applications
+            .iter()
+            .find(|app| CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == app_to_manage);
 
         match app {
             Some(app) => {
