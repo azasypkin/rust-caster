@@ -195,6 +195,7 @@ fn play_media(device: &CastDevice, app_to_run: &CastDeviceApp, media: String, me
                 content_type: media_type,
                 stream_type: media_stream_type,
                 duration: None,
+                metadata: None,
             },
         )
         .unwrap();
