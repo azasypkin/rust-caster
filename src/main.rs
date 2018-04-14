@@ -7,6 +7,7 @@ extern crate rust_cast;
 extern crate serde;
 #[macro_use]
 extern crate serde_derive;
+extern crate regex;
 
 use std::str::FromStr;
 
@@ -18,6 +19,7 @@ use rust_cast::{CastDevice, ChannelMessage};
 use rust_cast::channels::heartbeat::HeartbeatResponse;
 use rust_cast::channels::media::{Media, StatusEntry, StreamType};
 use rust_cast::channels::receiver::CastDeviceApp;
+use std::process::Command;
 
 const DEFAULT_DESTINATION_ID: &str = "receiver-0";
 
@@ -254,16 +256,84 @@ fn play_media(device: &CastDevice, app_to_run: &CastDeviceApp, media: String, me
     }
 }
 
+fn yes_no(question: &'static str) -> bool {
+    let mut response = String::new();
+    println!("{}", question);
+
+    while response != "y" && response != "n" {
+        println!("Answer (y/n):");
+        std::io::stdin().read_line(&mut response).expect("Does not understand input");
+        response = response.trim().to_string();
+    }
+
+    response == "y"
+}
+
+fn find_chromecast_device() -> Result<String, &'static str> {
+
+    let mut ip_addresses: Vec<String> = Vec::new();
+
+    let output = Command::new("sh")
+        .arg("-c")
+	.arg("avahi-browse -a --resolve -t")
+        .output()
+        .expect("failed to execute avahi-browse");
+    let output = String::from_utf8_lossy(&output.stdout);
+    let re = regex::Regex::new(r"(?s)Chromecast-.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})").unwrap();
+    for cap in re.captures_iter(&output) {
+	ip_addresses.push(String::from(&cap[1]));
+    }
+
+    if ip_addresses.len() == 0 {
+        return Err("Did not find any Cast Devices");
+    }
+
+    if ip_addresses.len() > 1 {
+        println!("Chromecast found on the following IP addresses:");
+        
+        for (i, ip) in ip_addresses.iter().enumerate() {
+            println!("{}: {}", i, &ip);
+        }
+        
+        let high_index = ip_addresses.len();
+        let mut selected_index = high_index + 1;
+        while selected_index >= high_index {
+   	    println!("Please select IP address by index:");
+	    let mut input = String::new();
+	    std::io::stdin().read_line(&mut input).expect("Failed to read line");
+	    selected_index = input.trim().parse().expect("Please type a valid number!");
+        }
+
+        return Ok(ip_addresses.get(selected_index).unwrap().clone());
+    }
+
+    return Ok(ip_addresses.get(0).unwrap().clone());
+}
+
 fn main() {
     env_logger::init();
 
-    let args: Args = Docopt::new(USAGE)
+    let mut args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
         .unwrap_or_else(|e| e.exit());
 
     if args.flag_address.is_none() {
-        println!("Please specify Cast Device address!");
-        std::process::exit(1);
+        if cfg!(target_os = "linux") && yes_no("Did not provide Cast Device address. Do you want to search your network?") {
+            
+            match find_chromecast_device(){
+                Ok(addr) => {
+                    println!("Found Casting Device on {}", addr);
+                    args.flag_address = Some(addr);
+                },
+                Err(e) =>  {
+                    println!("{}", e);
+                    std::process::exit(1);   
+                }
+            }
+        } else {
+            println!("Please specify Cast Device address!");
+            std::process::exit(1);
+        }
     }
 
     let cast_device = match CastDevice::connect_without_host_verification(args.flag_address.unwrap(), args.flag_port) {
