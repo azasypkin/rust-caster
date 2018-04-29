@@ -279,7 +279,7 @@ fn find_chromecast_device() -> Result<String, &'static str> {
         .output()
         .expect("failed to execute avahi-browse");
     let output = String::from_utf8_lossy(&output.stdout);
-    let re = regex::Regex::new(r"(?s)Chromecast-.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})").unwrap();
+    let re = regex::Regex::new(r"(?s)=[\d\w\W\s]+Chromecast-.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})").unwrap();
     for cap in re.captures_iter(&output) {
 	ip_addresses.push(String::from(&cap[1]));
     }
