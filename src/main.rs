@@ -257,16 +257,20 @@ fn play_media(device: &CastDevice, app_to_run: &CastDeviceApp, media: String, me
 }
 
 fn yes_no(question: &'static str) -> bool {
-    let mut response = String::new();
     println!("{}", question);
 
-    while response != "y" && response != "n" {
+    loop {
         println!("Answer (y/n):");
+	let mut response = String::new();
         std::io::stdin().read_line(&mut response).expect("Does not understand input");
         response = response.trim().to_string();
-    }
 
-    response == "y"
+	match response.as_ref() {
+	      "y" => return true,
+	      "n" => return false,
+	      _ => println!("Unknown response!")
+	};
+    }
 }
 
 fn find_chromecast_device() -> Result<String, &'static str> {
