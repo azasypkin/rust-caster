@@ -14,10 +14,10 @@ use ansi_term::Colour::{Green, Red};
 
 use docopt::Docopt;
 
-use rust_cast::{CastDevice, ChannelMessage};
 use rust_cast::channels::heartbeat::HeartbeatResponse;
 use rust_cast::channels::media::{Media, StatusEntry, StreamType};
 use rust_cast::channels::receiver::CastDeviceApp;
+use rust_cast::{CastDevice, ChannelMessage};
 
 const DEFAULT_DESTINATION_ID: &str = "receiver-0";
 
@@ -177,7 +177,13 @@ fn stop_current_app(device: &CastDevice) {
     }
 }
 
-fn play_media(device: &CastDevice, app_to_run: &CastDeviceApp, media: String, media_type: String, media_stream_type: StreamType) {
+fn play_media(
+    device: &CastDevice,
+    app_to_run: &CastDeviceApp,
+    media: String,
+    media_type: String,
+    media_stream_type: StreamType,
+) {
     let app = device.receiver.launch_app(app_to_run).unwrap();
 
     device
@@ -266,7 +272,10 @@ fn main() {
         std::process::exit(1);
     }
 
-    let cast_device = match CastDevice::connect_without_host_verification(args.flag_address.unwrap(), args.flag_port) {
+    let cast_device = match CastDevice::connect_without_host_verification(
+        args.flag_address.unwrap(),
+        args.flag_port,
+    ) {
         Ok(cast_device) => cast_device,
         Err(err) => panic!("Could not establish connection with Cast Device: {:?}", err),
     };
@@ -321,7 +330,9 @@ fn main() {
     }
 
     // Manage media session playback (play, pause, stop and seek).
-    if args.flag_media_pause || args.flag_media_play || args.flag_media_stop || args.flag_media_seek.is_some() {
+    if args.flag_media_pause || args.flag_media_play || args.flag_media_stop
+        || args.flag_media_seek.is_some()
+    {
         let app_to_manage = CastDeviceApp::from_str(args.flag_media_app.as_ref()).unwrap();
         let status = cast_device.receiver.get_status().unwrap();
 
@@ -445,7 +456,9 @@ fn main() {
         let media_type = args.flag_media_type.unwrap_or_else(|| "".to_string());
 
         let media_stream_type = match args.flag_media_stream_type.as_ref() {
-            value @ "buffered" | value @ "live" | value @ "none" => StreamType::from_str(value).unwrap(),
+            value @ "buffered" | value @ "live" | value @ "none" => {
+                StreamType::from_str(value).unwrap()
+            }
             _ => panic!("Unsupported stream type {}!", args.flag_media_stream_type),
         };
 
