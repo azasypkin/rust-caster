@@ -81,12 +81,12 @@ fn print_info(device: &CastDevice) {
             Green.paint("App#"),
             Green.paint(i.to_string()),
             Green.paint(": "),
-            Red.paint(status.applications[i].display_name.as_ref()),
+            Red.paint(status.applications[i].display_name.as_str()),
             Red.paint(" ("),
-            Red.paint(status.applications[i].app_id.as_ref()),
+            Red.paint(status.applications[i].app_id.as_str()),
             Red.paint(")"),
             Red.paint(" - "),
-            Red.paint(status.applications[i].status_text.as_ref())
+            Red.paint(status.applications[i].status_text.as_str())
         );
     }
 
@@ -128,21 +128,21 @@ fn stop_app(device: &CastDevice, app_to_run: &CastDeviceApp) {
     let app = status
         .applications
         .iter()
-        .find(|app| &CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == app_to_run);
+        .find(|app| &CastDeviceApp::from_str(app.app_id.as_str()).unwrap() == app_to_run);
 
     match app {
         Some(app) => {
-            device.receiver.stop_app(app.session_id.as_ref()).unwrap();
+            device.receiver.stop_app(app.session_id.as_str()).unwrap();
 
             println!(
                 "{}{}{}{}{}{}{}",
                 Green.paint("The following application has been stopped: "),
-                Red.paint(app.display_name.as_ref()),
+                Red.paint(app.display_name.as_str()),
                 Red.paint(" ("),
-                Red.paint(app.app_id.as_ref()),
+                Red.paint(app.app_id.as_str()),
                 Red.paint(")"),
                 Red.paint(" - "),
-                Red.paint(app.status_text.as_ref())
+                Red.paint(app.status_text.as_str())
             );
         }
         None => {
@@ -160,17 +160,17 @@ fn stop_current_app(device: &CastDevice) {
     let status = device.receiver.get_status().unwrap();
     match status.applications.first() {
         Some(app) => {
-            device.receiver.stop_app(app.session_id.as_ref()).unwrap();
+            device.receiver.stop_app(app.session_id.as_str()).unwrap();
 
             println!(
                 "{}{}{}{}{}{}{}",
                 Green.paint("The following application has been stopped: "),
-                Red.paint(app.display_name.as_ref()),
+                Red.paint(app.display_name.as_str()),
                 Red.paint(" ("),
-                Red.paint(app.app_id.as_ref()),
+                Red.paint(app.app_id.as_str()),
                 Red.paint(")"),
                 Red.paint(" - "),
-                Red.paint(app.status_text.as_ref())
+                Red.paint(app.status_text.as_str())
             );
         }
         None => println!("{}", Green.paint("There are no applications active!")),
@@ -188,14 +188,14 @@ fn play_media(
 
     device
         .connection
-        .connect(app.transport_id.as_ref())
+        .connect(app.transport_id.as_str())
         .unwrap();
 
     let status = device
         .media
         .load(
-            app.transport_id.as_ref(),
-            app.session_id.as_ref(),
+            app.transport_id.as_str(),
+            app.session_id.as_str(),
             &Media {
                 content_id: media,
                 content_type: media_type,
@@ -236,7 +236,7 @@ fn play_media(
             println!(
                 "{} {}",
                 Green.paint("Content Id:"),
-                Red.paint(media.content_id.as_ref())
+                Red.paint(media.content_id.as_str())
             );
             println!(
                 "{} {}",
@@ -246,7 +246,7 @@ fn play_media(
             println!(
                 "{} {}",
                 Green.paint("Content type:"),
-                Red.paint(media.content_type.as_ref())
+                Red.paint(media.content_type.as_str())
             );
 
             if let Some(duration) = media.duration {
@@ -333,24 +333,24 @@ fn main() {
     if args.flag_media_pause || args.flag_media_play || args.flag_media_stop
         || args.flag_media_seek.is_some()
     {
-        let app_to_manage = CastDeviceApp::from_str(args.flag_media_app.as_ref()).unwrap();
+        let app_to_manage = CastDeviceApp::from_str(args.flag_media_app.as_str()).unwrap();
         let status = cast_device.receiver.get_status().unwrap();
 
         let app = status
             .applications
             .iter()
-            .find(|app| CastDeviceApp::from_str(app.app_id.as_ref()).unwrap() == app_to_manage);
+            .find(|app| CastDeviceApp::from_str(app.app_id.as_str()).unwrap() == app_to_manage);
 
         match app {
             Some(app) => {
                 cast_device
                     .connection
-                    .connect(app.transport_id.as_ref())
+                    .connect(app.transport_id.as_str())
                     .unwrap();
 
                 let status = cast_device
                     .media
-                    .get_status(app.transport_id.as_ref(), None)
+                    .get_status(app.transport_id.as_str(), None)
                     .unwrap();
                 let status = status.entries.first().unwrap();
 
@@ -360,21 +360,21 @@ fn main() {
                     status_entry = Some(
                         cast_device
                             .media
-                            .pause(app.transport_id.as_ref(), status.media_session_id)
+                            .pause(app.transport_id.as_str(), status.media_session_id)
                             .unwrap(),
                     );
                 } else if args.flag_media_play {
                     status_entry = Some(
                         cast_device
                             .media
-                            .play(app.transport_id.as_ref(), status.media_session_id)
+                            .play(app.transport_id.as_str(), status.media_session_id)
                             .unwrap(),
                     );
                 } else if args.flag_media_stop {
                     status_entry = Some(
                         cast_device
                             .media
-                            .stop(app.transport_id.as_ref(), status.media_session_id)
+                            .stop(app.transport_id.as_str(), status.media_session_id)
                             .unwrap(),
                     );
                 } else if args.flag_media_seek.is_some() {
@@ -382,7 +382,7 @@ fn main() {
                         cast_device
                             .media
                             .seek(
-                                app.transport_id.as_ref(),
+                                app.transport_id.as_str(),
                                 status.media_session_id,
                                 Some(args.flag_media_seek.unwrap()),
                                 None,
@@ -416,7 +416,7 @@ fn main() {
                         println!(
                             "{} {}",
                             Green.paint("Content Id:"),
-                            Red.paint(media.content_id.as_ref())
+                            Red.paint(media.content_id.as_str())
                         );
                         println!(
                             "{} {}",
@@ -426,7 +426,7 @@ fn main() {
                         println!(
                             "{} {}",
                             Green.paint("Content type:"),
-                            Red.paint(media.content_type.as_ref())
+                            Red.paint(media.content_type.as_str())
                         );
 
                         if let Some(duration) = media.duration {
@@ -455,7 +455,7 @@ fn main() {
     if let Some(media) = args.flag_media {
         let media_type = args.flag_media_type.unwrap_or_else(|| "".to_string());
 
-        let media_stream_type = match args.flag_media_stream_type.as_ref() {
+        let media_stream_type = match args.flag_media_stream_type.as_str() {
             value @ "buffered" | value @ "live" | value @ "none" => {
                 StreamType::from_str(value).unwrap()
             }
@@ -464,7 +464,7 @@ fn main() {
 
         play_media(
             &cast_device,
-            &CastDeviceApp::from_str(args.flag_media_app.as_ref()).unwrap(),
+            &CastDeviceApp::from_str(args.flag_media_app.as_str()).unwrap(),
             media,
             media_type,
             media_stream_type,
