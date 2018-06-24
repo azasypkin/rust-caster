@@ -330,7 +330,9 @@ fn main() {
     }
 
     // Manage media session playback (play, pause, stop and seek).
-    if args.flag_media_pause || args.flag_media_play || args.flag_media_stop
+    if args.flag_media_pause
+        || args.flag_media_play
+        || args.flag_media_stop
         || args.flag_media_seek.is_some()
     {
         let app_to_manage = CastDeviceApp::from_str(args.flag_media_app.as_str()).unwrap();
