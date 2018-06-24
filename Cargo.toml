@@ -1,6 +1,6 @@
 [package]
 name = "rust-caster"
-version = "0.13.0"
+version = "0.13.1"
 authors = ["Aleh Zasypkin <aleh.zasypkin@gmail.com>"]
 
 [dependencies]
@@ -8,6 +8,6 @@ ansi_term = "0.11.0"
 docopt = "1.0.0"
 env_logger = "0.5.10"
 log = "0.4.2"
-rust_cast = "0.13.0"
+rust_cast = "0.13.1"
 serde = "1.0.66"
 serde_derive = "1.0.66"
