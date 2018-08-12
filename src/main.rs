@@ -203,8 +203,7 @@ fn play_media(
                 duration: None,
                 metadata: None,
             },
-        )
-        .unwrap();
+        ).unwrap();
 
     for i in 0..status.entries.len() {
         println!(
@@ -388,8 +387,7 @@ fn main() {
                                 status.media_session_id,
                                 Some(args.flag_media_seek.unwrap()),
                                 None,
-                            )
-                            .unwrap(),
+                            ).unwrap(),
                     );
                 }
 
