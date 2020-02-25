@@ -1,6 +1,6 @@
 [package]
 name = "rust-caster"
-version = "0.15.0"
+version = "0.15.1"
 authors = ["Aleh Zasypkin <aleh.zasypkin@gmail.com>"]
 edition = "2018"
 
@@ -9,6 +9,6 @@ ansi_term = "0.12.1"
 docopt = "1.1.0"
 env_logger = "0.7.1"
 log = "0.4.8"
-rust_cast = "0.15.0"
+rust_cast = "0.15.1"
 serde = "1.0.104"
 serde_derive = "1.0.104"
