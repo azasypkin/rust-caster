@@ -1,14 +1,14 @@
 [package]
 name = "rust-caster"
-version = "0.15.1"
+version = "0.16.0"
 authors = ["Aleh Zasypkin <aleh.zasypkin@gmail.com>"]
 edition = "2018"
 
 [dependencies]
 ansi_term = "0.12.1"
 docopt = "1.1.0"
-env_logger = "0.7.1"
-log = "0.4.8"
-rust_cast = "0.15.1"
-serde = "1.0.104"
-serde_derive = "1.0.104"
+env_logger = "0.8.2"
+log = "0.4.11"
+rust_cast = {  version = "0.16.0", features = ["thread_safe"] }
+serde = "1.0.118"
+serde_derive = "1.0.118"
