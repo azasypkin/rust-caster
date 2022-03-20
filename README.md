@@ -1,3 +1,7 @@
+__IMPORTANT:__ This repository is no longer maintained since the tool has been merged to the [Rust Cast](https://github.com/azasypkin/rust-cast) repository as the example.
+
+--------------
+
 # Rust Caster
 
 [![Build Status](https://travis-ci.org/azasypkin/rust-caster.svg?branch=master)](https://travis-ci.org/azasypkin/rust-caster)
